@@ -1,0 +1,223 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Flights from {{ origin }} to {{ destination }}</title>
+
+  <!-- ✅ Tailwind + Bootstrap -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <style>
+    body {
+      background-color: #f2f4f8;
+      font-family: "Inter", sans-serif;
+    }
+    .navbar-custom {
+      background-color: #02203c;
+    }
+    .flight-card:hover {
+      transform: scale(1.01);
+      transition: all 0.2s;
+    }
+    .footer-dark {
+      background-color: #02203c;
+      color: #fff;
+    }
+    .date-tab.active {
+      background-color: #02203c !important;
+      color: #fff !important;
+    }
+  </style>
+</head>
+
+<body class="min-h-screen flex flex-col">
+
+  <!-- 🟦 HEADER -->
+  <nav class="navbar navbar-expand-lg navbar-custom text-white py-3">
+    <div class="container-fluid px-5">
+      <a class="navbar-brand text-white fw-bold" href="/">✈️ FlightFinder</a>
+      <div>
+        <a href="#" class="text-white me-3">Help</a>
+        <a href="#" class="text-white me-3">🌐 English (IN)</a>
+        <a href="#" class="text-white me-3">❤️</a>
+        <a href="#" class="btn btn-light btn-sm">Log in</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ✈️ SEARCH SUMMARY -->
+  <section class="bg-[#0d1b2a] text-white py-3 text-center">
+    <h5 class="fw-semibold">
+      {{ origin }} ➜ {{ destination }} • 1 adult, Economy
+    </h5>
+  </section>
+
+  <!-- 📅 DATE SELECTOR -->
+  <div class="flex justify-center items-center bg-[#eaf9f5] py-3 gap-2 flex-wrap">
+    {% for d in date_options %}
+      <a href="?origin={{ origin }}&destination={{ destination }}&date={{ d }}"
+         class="px-4 py-2 rounded-md border {% if date == d %}date-tab active{% else %}bg-white{% endif %}">
+         {{ d }}
+      </a>
+    {% endfor %}
+  </div>
+
+  <!-- 🧭 MAIN CONTAINER -->
+  <div class="container-fluid px-5 mt-4 mb-5 flex flex-col md:flex-row gap-4">
+
+    <!-- 🧰 LEFT SIDEBAR FILTERS -->
+    <div class="w-full md:w-1/4 bg-white rounded-lg p-3 shadow-sm">
+      <button class="btn btn-outline-dark w-100 mb-3">
+        🔔 Get Price Alerts
+      </button>
+
+      <h6 class="fw-bold mt-3 mb-2">Stops</h6>
+      <ul class="list-unstyled text-sm">
+        <li><input type="checkbox" class="me-2">Non-stop</li>
+        <li><input type="checkbox" class="me-2">1 Stop</li>
+      </ul>
+
+      <h6 class="fw-bold mt-3 mb-2">Baggage</h6>
+      <ul class="list-unstyled text-sm">
+        <li><input type="checkbox" class="me-2">Cabin only</li>
+        <li><input type="checkbox" class="me-2">Check-in baggage</li>
+      </ul>
+
+      <h6 class="fw-bold mt-3 mb-2">Departure times</h6>
+      <input type="range" class="form-range">
+
+      <h6 class="fw-bold mt-3 mb-2">Journey duration</h6>
+      <input type="range" class="form-range">
+
+      <h6 class="fw-bold mt-3 mb-2">Airlines</h6>
+      <ul class="list-unstyled text-sm">
+        <li><input type="checkbox" class="me-2">IndiGo</li>
+        <li><input type="checkbox" class="me-2">Air India</li>
+      </ul>
+    </div>
+
+    <!-- ✈️ RIGHT SIDE RESULTS -->
+    <div class="w-full md:w-3/4">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h6 class="fw-semibold mb-0">Results for {{ origin }} → {{ destination }}</h6>
+        <select class="form-select w-auto">
+          <option selected>Sort by: Best</option>
+          <option>Cheapest</option>
+          <option>Fastest</option>
+        </select>
+      </div>
+
+      {% if flights %}
+        {% for f in flights %}
+          <div class="bg-white rounded-lg shadow-sm p-4 mb-3 flight-card">
+            <div class="row align-items-center">
+
+              <!-- 🟦 Airline Logo + Name -->
+              <div class="col-md-2 text-center">
+                <img src="https://logo.clearbit.com/{{ f.airline|lower }}.com"
+                     onerror="this.src='https://t3.ftcdn.net/jpg/02/15/51/76/240_F_215517687_MLMCHbyaOb5z8OBffOUw6ASwXDTfjV5v.jpg'"
+                     alt="{{ f.airline }}" class="img-fluid mb-2" width="60">
+                <div class="fw-semibold text-muted small">{{ f.airline }}</div>
+              </div>
+
+              <div class="col-md-2 text-center">
+                <h5 class="fw-bold">{{ f.departure_time }}</h5>
+                <small class="text-muted">{{ f.origin }}</small>
+              </div>
+
+              <div class="col-md-1 text-center">
+                <p class="mb-0">➡️</p>
+                <small>{{ f.duration }} min</small>
+              </div>
+
+              <div class="col-md-2 text-center">
+                <h5 class="fw-bold">{{ f.arrival_time }}</h5>
+                <small class="text-muted">{{ f.destination }}</small>
+              </div>
+
+              <div class="col-md-2 text-center">
+                <h5 class="text-primary fw-bold">₹{{ f.price }}</h5>
+                <small class="text-muted">Seats: {{ f.seats_available|default:"-" }}</small>
+              </div>
+
+              <!-- 🟨 Booking Button -->
+              <div class="col-md-3 text-center">
+                <button class="btn btn-dark px-4 py-2 rounded-lg"
+                  onclick="redirectToBooking('{{ f.id }}','{{ f.airline }}','{{ f.origin }}','{{ f.destination }}','{{ f.departure_time }}','{{ f.price }}')">
+                  Book Now
+                </button>
+              </div>
+
+            </div>
+          </div>
+        {% endfor %}
+      {% else %}
+        <div class="alert alert-info text-center py-5">
+          No flights found for your search.
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- ⚫ FOOTER -->
+  <footer class="footer-dark mt-auto py-5">
+    <div class="container">
+      <div class="row text-sm">
+        <div class="col-md-3">
+          <h6 class="fw-bold mb-2">Help</h6>
+          <ul class="list-unstyled text-white-50">
+            <li>Cookie policy</li>
+            <li>Privacy policy</li>
+            <li>Terms of service</li>
+            <li>Company details</li>
+          </ul>
+        </div>
+        <div class="col-md-3">
+          <h6 class="fw-bold mb-2">Explore</h6>
+          <ul class="list-unstyled text-white-50">
+            <li>Company</li>
+            <li>Partners</li>
+            <li>Trips</li>
+            <li>International Sites</li>
+          </ul>
+        </div>
+        <div class="col-md-3">
+          <h6 class="fw-bold mb-2">Settings</h6>
+          <ul class="list-unstyled text-white-50">
+            <li>Privacy Settings</li>
+            <li>Log in</li>
+          </ul>
+        </div>
+        <div class="col-md-3">
+          <h6 class="fw-bold mb-2">Language</h6>
+          <select class="form-select form-select-sm bg-dark text-white border-secondary">
+            <option selected>India - English (₹ INR)</option>
+            <option>US - English ($ USD)</option>
+            <option>UK - English (£ GBP)</option>
+          </select>
+        </div>
+      </div>
+
+      <hr class="border-secondary my-4">
+
+      <div class="text-center small text-white-50">
+        <p class="mb-0">Cheap flight booking from anywhere, to everywhere</p>
+        <p class="mb-0">© FlightFinder Ltd 2025</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- 🟩 Redirect Function -->
+  <script>
+  function redirectToBooking(id, airline, origin, destination, departure, price) {
+    const url = `/booking/?schedule_id=${id}&name=${encodeURIComponent(airline)}&origin=${encodeURIComponent(origin)}&destination=${encodeURIComponent(destination)}&departure=${encodeURIComponent(departure)}&price=${encodeURIComponent(price)}`;
+    window.location.href = url;
+  }
+  </script>
+</body>
+</html>

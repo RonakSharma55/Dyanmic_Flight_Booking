@@ -1,0 +1,238 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<!-- ✅ Navbar -->
+<nav class="navbar navbar-expand-lg navbar-custom">
+  <div class="container">
+    <a class="navbar-brand fw-bold" href="#">FlightFinder</a>
+    <div class="collapse navbar-collapse">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item"><a class="nav-link" href="#">Help</a></li>
+        <li class="nav-item"><a class="nav-link" href="#">🌐</a></li>
+        <li class="nav-item"><a class="nav-link" href="#">❤️</a></li>
+        <li class="nav-item"><a class="nav-link" href="#">Log in</a></li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<!-- ✅ Search Section -->
+<section class="bg-dark text-white py-5">
+  <div class="container text-center">
+    <h2 class="fw-bold mb-4">Millions of cheap flights. One simple search.</h2>
+
+    <!-- ✅ Connects to Django backend -->
+    <form method="get" action="{% url 'search_results' %}" class="row justify-content-center g-3">
+
+      <div class="col-md-3">
+        <select name="origin" class="form-select">
+          <option value="">From (City)</option>
+          {% for city in cities %}
+          <option value="{{ city }}">{{ city }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="col-md-3">
+        <select name="destination" class="form-select">
+          <option value="">To (City)</option>
+          {% for city in cities %}
+          <option value="{{ city }}">{{ city }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+    <div class="col-md-3">
+  <select id="date" name="date" class="form-select" required>
+    <option value="">Select Date</option>
+  </select>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  fetch("/api/flights/dates/")
+    .then(response => response.json())
+    .then(data => {
+      const dateSelect = document.getElementById("date");
+
+      // ✅ Handle both possible formats (array OR object)
+      const datesArray = Array.isArray(data) ? data : data.dates;
+
+      if (Array.isArray(datesArray)) {
+        datesArray.forEach(date => {
+          const option = document.createElement("option");
+          option.value = date;
+          option.textContent = date;
+          dateSelect.appendChild(option);
+        });
+      } else {
+        console.error("Unexpected response format:", data);
+      }
+    })
+    .catch(error => console.error("Error loading dates:", error));
+});
+</script>
+
+
+      <div class="col-md-2">
+        <button type="submit" class="btn btn-primary w-100 py-2">Search</button>
+      </div>
+    </form>
+    
+  </div>
+</section>
+
+
+<!-- ✅ Categories -->
+<div class="container my-5">
+  <div class="row text-center">
+    <div class="col-md-4">
+      <button class="btn btn-outline-primary w-100 py-3">🏨 Hotels</button>
+    </div>
+    <div class="col-md-4">
+      <button class="btn btn-outline-primary w-100 py-3">🚗 Car hire</button>
+    </div>
+    <div class="col-md-4">
+      <button class="btn btn-outline-primary w-100 py-3">🌍 Explore everywhere</button>
+    </div>
+  </div>
+</div>
+
+<!-- ✅ Offer Banner -->
+<div class="container my-5">
+  <div class="card border-0 shadow">
+    <div class="row g-0 align-items-center">
+      <div class="col-md-6">
+        <div class="card-body">
+          <h2 class="fw-bold">Go further, get closer</h2>
+          <p class="text-muted">Sneak off for a romantic hotel stay with prices you’ll love.</p>
+          <button class="btn btn-dark">Find your room</button>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <img src="https://images.unsplash.com/photo-1506744038136-46273834b3fb" 
+             class="img-fluid rounded-end" alt="Offer">
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ✅ FAQ Section -->
+<div class="container my-5">
+  <h3 class="fw-bold mb-4">Booking flights with FlightFinder</h3>
+  <div class="accordion" id="faqAccordion">
+    <div class="accordion-item">
+      <h2 class="accordion-header">
+        <button class="accordion-button" data-bs-toggle="collapse" data-bs-target="#faq1">
+          How does FlightFinder work?
+        </button>
+      </h2>
+      <div id="faq1" class="accordion-collapse collapse show" data-bs-parent="#faqAccordion">
+        <div class="accordion-body">We compare flights from hundreds of airlines to find the best deals for you.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 🌍 OUR INTERNATIONAL SITES SECTION -->
+<section class="bg-light py-5">
+  <div class="container">
+    <h5 class="fw-bold mb-3">Our international sites</h5>
+
+    <h6 class="fw-semibold mb-4">Start planning your adventure</h6>
+
+    <!-- Category Tabs -->
+    <ul class="nav nav-pills mb-4" id="footerTabs">
+      <li class="nav-item">
+        <a class="nav-link active" href="#">Country</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#">Airport</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#">City</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#">Region</a>
+      </li>
+    </ul>
+
+    <!-- Links Grid -->
+    <div class="row text-muted">
+      <div class="col-md-4">
+        <ul class="list-unstyled small">
+          <li>Return tickets to Maldives</li>
+          <li>Cheap tickets to United Arab Emirates</li>
+          <li>Cheap return tickets to Thailand</li>
+        </ul>
+      </div>
+      <div class="col-md-4">
+        <ul class="list-unstyled small">
+          <li>Cheap flights to Singapore</li>
+          <li>Flights to India</li>
+          <li>Return flights to Kazakhstan</li>
+        </ul>
+      </div>
+      <div class="col-md-4">
+        <ul class="list-unstyled small">
+          <li>Return flights to Italy</li>
+          <li>Return tickets to Sri Lanka</li>
+          <li>Return plane tickets to Canada</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ⚫ MAIN DARK FOOTER -->
+<footer class="bg-dark text-white pt-5 pb-3">
+  <div class="container">
+
+    <!-- Top Links -->
+    <div class="row">
+      <div class="col-md-3">
+        <h6 class="fw-bold mb-3">Help</h6>
+        <ul class="list-unstyled small">
+          <li><a href="#" class="text-white-50 text-decoration-none">Cookie policy</a></li>
+          <li><a href="#" class="text-white-50 text-decoration-none">Privacy policy</a></li>
+          <li><a href="#" class="text-white-50 text-decoration-none">Terms of service</a></li>
+          <li><a href="#" class="text-white-50 text-decoration-none">Company details</a></li>
+        </ul>
+      </div>
+      <div class="col-md-3">
+        <h6 class="fw-bold mb-3">Explore</h6>
+        <ul class="list-unstyled small">
+          <li><a href="#" class="text-white-50 text-decoration-none">Company</a></li>
+          <li><a href="#" class="text-white-50 text-decoration-none">Partners</a></li>
+          <li><a href="#" class="text-white-50 text-decoration-none">Trips</a></li>
+          <li><a href="#" class="text-white-50 text-decoration-none">International Sites</a></li>
+        </ul>
+      </div>
+      <div class="col-md-3">
+        <h6 class="fw-bold mb-3">Settings</h6>
+        <ul class="list-unstyled small">
+          <li><a href="#" class="text-white-50 text-decoration-none">Privacy Settings</a></li>
+          <li><a href="#" class="text-white-50 text-decoration-none">Log in</a></li>
+        </ul>
+      </div>
+      <div class="col-md-3">
+        <h6 class="fw-bold mb-3">Language</h6>
+        <select class="form-select form-select-sm bg-dark text-white border-secondary">
+          <option selected>India - English (₹ INR)</option>
+          <option>US - English ($ USD)</option>
+          <option>UK - English (£ GBP)</option>
+        </select>
+      </div>
+    </div>
+
+    <hr class="border-secondary my-4">
+
+    <!-- Bottom Section -->
+    <div class="text-center small text-white-50">
+      <p class="mb-0">Cheap flight booking from anywhere, to everywhere</p>
+      <p class="mb-0">© Skyscanner Ltd 2002 – 2025</p>
+    </div>
+  </div>
+</footer>
+
+{% endblock %}

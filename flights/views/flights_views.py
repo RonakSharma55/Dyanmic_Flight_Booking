@@ -2,10 +2,10 @@ from datetime import datetime
 from rest_framework.decorators import api_view
 from rest_framework import status
 from rest_framework.response import Response
-from .models import Flight, Schedule
-from .pricing import calculate_dynamic_price
+from flights.models import Flight, Schedule
+from flights.pricing import calculate_dynamic_price
 import random
-from .serializers import FlightSerializer, ScheduleSerializer
+from flights.serializers import FlightSerializer, ScheduleSerializer
 from flights.external_api.simulator import generate_external_schedules
 @api_view(['GET'])
 def get_all_flights(request):
@@ -57,7 +57,7 @@ def search_flights(request):
     return Response(serializer.data)
 
 
-@api_view(['POST'])
+@api_view(['GET', 'POST'])
 def simulate_external_api(request):
     generate_external_schedules(days=7)
     return Response({"status": "success", "message": "External schedules generated"})

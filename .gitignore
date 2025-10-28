@@ -5,6 +5,8 @@ __pycache__/
 
 # Environment variables
 .env
+*.envgit add .
+
 
 # VS Code settings (optional)
 .vscode/
